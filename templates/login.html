@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | AI VLSI Tool</title>
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body {
+            font-family: Arial, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #dbeafe 0%, #eff6ff 45%, #ecfeff 100%);
+            color: #1e293b;
+            padding: 24px;
+        }
+        .shell {
+            width: 100%;
+            max-width: 1100px;
+            display: grid;
+            grid-template-columns: 1.1fr 430px;
+            gap: 28px;
+            align-items: center;
+        }
+        .hero h1 {
+            font-size: 52px;
+            line-height: 1.05;
+            margin-bottom: 16px;
+        }
+        .hero p {
+            font-size: 18px;
+            color: #64748b;
+            line-height: 1.7;
+            max-width: 560px;
+        }
+        .logo {
+            width: 84px;
+            height: 84px;
+            border-radius: 24px;
+            background: linear-gradient(135deg, #2563eb, #06b6d4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 34px;
+            color: white;
+            margin-bottom: 20px;
+            box-shadow: 0 14px 30px rgba(37,99,235,0.22);
+        }
+        .card {
+            background: rgba(255,255,255,0.9);
+            border-radius: 26px;
+            padding: 36px 32px;
+            box-shadow: 0 18px 40px rgba(30,41,59,0.12);
+            border: 1px solid rgba(148,163,184,0.16);
+        }
+        .card h2 {
+            font-size: 28px;
+            margin-bottom: 8px;
+            text-align: center;
+        }
+        .sub {
+            text-align: center;
+            color: #64748b;
+            margin-bottom: 22px;
+        }
+        input {
+            width: 100%;
+            padding: 14px 16px;
+            border-radius: 14px;
+            border: 1px solid #cbd5e1;
+            margin-bottom: 14px;
+            outline: none;
+        }
+        button {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 14px;
+            background: linear-gradient(90deg, #2563eb, #06b6d4);
+            color: white;
+            font-weight: 800;
+            cursor: pointer;
+        }
+        button:hover { opacity: 0.95; }
+        .switch {
+            text-align: center;
+            margin-top: 18px;
+            color: #64748b;
+        }
+        .switch a {
+            color: #2563eb;
+            text-decoration: none;
+            font-weight: 700;
+        }
+        .error {
+            color: #991b1b;
+            background: #fee2e2;
+            border: 1px solid #fecaca;
+            padding: 10px 12px;
+            border-radius: 12px;
+            margin-bottom: 14px;
+            text-align: center;
+        }
+        @media (max-width: 900px) {
+            .shell { grid-template-columns: 1fr; }
+            .hero h1 { font-size: 38px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="shell">
+        <div class="hero">
+            <div class="logo">⚡</div>
+            <h1>AI VLSI Power Tool</h1>
+            <p>Professional ML-based analysis for power estimation, design insights, and engineering recommendations.</p>
+        </div>
+
+        <div class="card">
+            <h2>Sign In</h2>
+            <p class="sub">Access your professional analysis workspace</p>
+
+            {% if message %}
+            <div class="error">{{ message }}</div>
+            {% endif %}
+
+            <form method="POST">
+                <input type="email" name="email" placeholder="Enter your email" required>
+                <input type="password" name="password" placeholder="Enter password" required>
+                <button type="submit">Login</button>
+            </form>
+
+            <p class="switch">New here? <a href="/register">Create account</a></p>
+        </div>
+    </div>
+</body>
+</html>

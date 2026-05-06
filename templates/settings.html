@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings | AI VLSI Tool</title>
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+
+        body {
+            font-family: Arial, sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #eef4ff 0%, #f8fbff 40%, #ecfeff 100%);
+            color: #1e293b;
+        }
+
+        .topbar {
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            padding:22px 34px;
+            background: rgba(255,255,255,0.85);
+            box-shadow: 0 8px 20px rgba(30,41,59,0.08);
+        }
+
+        .back {
+            text-decoration:none;
+            padding:12px 18px;
+            border-radius:12px;
+            background: linear-gradient(90deg, #2563eb, #06b6d4);
+            color:white;
+            font-weight:700;
+        }
+
+        .wrapper {
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .card {
+            background: rgba(255,255,255,0.88);
+            border-radius: 24px;
+            padding: 28px;
+            box-shadow: 0 18px 40px rgba(30,41,59,0.10);
+        }
+
+        h1 { font-size: 34px; }
+
+        .sub {
+            color:#64748b;
+            margin-top:6px;
+        }
+
+        .success {
+            color:#166534;
+            background:#dcfce7;
+            border:1px solid #bbf7d0;
+            padding:12px 14px;
+            border-radius:12px;
+            margin-bottom:18px;
+        }
+
+        .field {
+            margin-bottom: 18px;
+        }
+
+        .field label {
+            display:block;
+            font-weight:700;
+            margin-bottom:8px;
+        }
+
+        .field input,
+        .field select {
+            width:100%;
+            padding:14px 16px;
+            border-radius:14px;
+            border:1px solid #cbd5e1;
+            background:white;
+            outline:none;
+        }
+
+        .field small {
+            display:block;
+            margin-top:6px;
+            color:#64748b;
+        }
+
+        .preview {
+            display:flex;
+            align-items:center;
+            gap:14px;
+            margin-top:10px;
+            margin-bottom:20px;
+        }
+
+        .preview img,
+        .fake-dp {
+            width:64px;
+            height:64px;
+            border-radius:50%;
+            object-fit:cover;
+            background: linear-gradient(135deg, #2563eb, #06b6d4);
+            color:white;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            font-size:26px;
+            font-weight:800;
+        }
+
+        .save-btn {
+            width:100%;
+            padding:15px;
+            border:none;
+            border-radius:14px;
+            background: linear-gradient(90deg, #22c55e, #14b8a6);
+            color:white;
+            font-weight:800;
+            cursor:pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="topbar">
+        <div>
+            <h1>Settings</h1>
+            <p class="sub">Customize your profile and analysis tool</p>
+        </div>
+
+        <div style="display:flex; gap:12px;">
+            <a href="/help" class="back">Help</a>
+            <a href="/dashboard" class="back">Back to Dashboard</a>
+        </div>
+    </div>
+
+    <div class="wrapper">
+        <div class="card">
+            {% if message %}
+            <div class="success">{{ message }}</div>
+            {% endif %}
+
+            <form method="POST" enctype="multipart/form-data">
+                <div class="field">
+                    <label>Username</label>
+                    <input type="text" name="username" value="{{ settings_data.username }}" required>
+                    <small>Name shown in the profile menu</small>
+                </div>
+
+                <div class="field">
+                    <label>Profile Image</label>
+                    <input type="file" name="profile_image" accept="image/*">
+                    <small>Upload your DP image</small>
+                </div>
+
+                <div class="preview">
+                    {% if settings_data.profile_image %}
+                        <img src="{{ url_for('static', filename=settings_data.profile_image) }}" alt="Profile Image">
+                    {% else %}
+                        <div class="fake-dp">{{ settings_data.username[0]|upper }}</div>
+                    {% endif %}
+                    <div>
+                        <strong>{{ settings_data.username }}</strong><br>
+                        <span>{{ user }}</span>
+                    </div>
+                </div>
+
+                <div class="field">
+                    <label>Theme</label>
+                    <select name="theme">
+                        <option value="light" {% if settings_data.theme == 'light' %}selected{% endif %}>Light Professional</option>
+                        <option value="blue" {% if settings_data.theme == 'blue' %}selected{% endif %}>Soft Blue</option>
+                    </select>
+                </div>
+
+                <div class="field">
+                    <label>Graph View</label>
+                    <select name="graph_view">
+                        <option value="Voltage vs Power" {% if settings_data.graph_view == 'Voltage vs Power' %}selected{% endif %}>Voltage vs Power</option>
+                        <option value="Power Trend" {% if settings_data.graph_view == 'Power Trend' %}selected{% endif %}>Power Trend</option>
+                    </select>
+                </div>
+
+                <div class="field">
+                    <label>Report Mode</label>
+                    <select name="report_mode">
+                        <option value="Enabled" {% if settings_data.report_mode == 'Enabled' %}selected{% endif %}>Enabled</option>
+                        <option value="Minimal" {% if settings_data.report_mode == 'Minimal' %}selected{% endif %}>Minimal</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="save-btn">Save Settings</button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

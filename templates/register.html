@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register | AI VLSI Tool</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="auth-page">
+    <div class="auth-shell">
+        <div class="auth-side">
+            <div class="logo-circle">⚡</div>
+            <h1>Create Your Account</h1>
+            <p>Register to use the AI-assisted VLSI power analysis dashboard and generate reports.</p>
+        </div>
+
+        <div class="auth-card premium">
+            <div class="brand">AI VLSI Tool</div>
+            <h2>Create Account</h2>
+            <p class="subtext">Register to access the analysis platform</p>
+
+            {% if message %}
+            <p class="error-msg">{{ message }}</p>
+            {% endif %}
+
+            <form method="POST">
+                <input type="email" name="email" placeholder="Enter your email" required>
+                <input type="password" name="password" placeholder="Create password" required>
+                <button type="submit">Register</button>
+            </form>
+
+            <p class="switch-link">Already have an account? <a href="/">Login</a></p>
+        </div>
+    </div>
+</body>
+</html>

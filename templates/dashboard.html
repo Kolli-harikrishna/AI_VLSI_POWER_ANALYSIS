@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI VLSI Power Analysis Dashboard</title>
+<script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+<style>
+:root{
+    --primary:#2563eb;
+    --cyan:#06b6d4;
+    --success:#22c55e;
+    --warning:#f59e0b;
+    --danger:#ef4444;
+    --ink:#0f172a;
+    --muted:#64748b;
+    --line:#e2e8f0;
+    --soft:#f8fafc;
+    --card:rgba(255,255,255,.94);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+    font-family:Inter,Arial,sans-serif;
+    min-height:100vh;
+    color:var(--ink);
+    background:
+        radial-gradient(circle at top left,rgba(37,99,235,.14),transparent 28%),
+        radial-gradient(circle at top right,rgba(6,182,212,.16),transparent 30%),
+        linear-gradient(135deg,#f8fbff 0%,#eef6ff 45%,#ecfeff 100%);
+}
+.topbar{
+    height:76px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:0 32px;
+    background:rgba(255,255,255,.9);
+    backdrop-filter:blur(16px);
+    border-bottom:1px solid rgba(226,232,240,.8);
+    box-shadow:0 10px 28px rgba(15,23,42,.06);
+    position:sticky;
+    top:0;
+    z-index:20;
+}
+.brand-wrap{display:flex;align-items:center;gap:14px}
+.brand-badge{
+    width:48px;height:48px;border-radius:16px;
+    background:linear-gradient(135deg,var(--primary),var(--cyan));
+    color:#fff;display:flex;align-items:center;justify-content:center;
+    font-size:20px;font-weight:900;box-shadow:0 12px 24px rgba(37,99,235,.25);
+}
+.topbar h1{font-size:26px;letter-spacing:-.4px;margin-bottom:2px}
+.subtext{font-size:13px;color:var(--muted)}
+.profile-menu{position:relative}
+.profile-btn{
+    min-width:180px;
+    display:flex;align-items:center;justify-content:space-between;gap:10px;
+    padding:9px 12px;background:#fff;border:1px solid #dbeafe;border-radius:16px;
+    cursor:pointer;box-shadow:0 8px 20px rgba(15,23,42,.06);
+}
+.profile-left{display:flex;align-items:center;gap:10px}
+.profile-btn img,.profile-avatar,.dropdown-avatar{
+    width:40px;height:40px;border-radius:50%;object-fit:cover;
+    background:linear-gradient(135deg,var(--primary),var(--cyan));
+    color:white;display:flex;align-items:center;justify-content:center;font-weight:900;
+    border:2px solid #bfdbfe;
+}
+.profile-name{font-weight:800;color:var(--ink);font-size:13px;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.profile-arrow{color:var(--muted)}
+.dropdown-menu{
+    display:none;position:absolute;right:0;top:56px;width:300px;background:#fff;border:1px solid var(--line);
+    border-radius:20px;box-shadow:0 24px 50px rgba(15,23,42,.16);overflow:hidden;z-index:30;
+}
+.dropdown-menu.show{display:block}
+.dropdown-user{display:flex;gap:12px;align-items:center;padding:16px;background:linear-gradient(180deg,#f8fbff,#eef6ff);border-bottom:1px solid var(--line)}
+.dropdown-user strong{font-size:14px;display:block}
+.dropdown-menu a{display:block;padding:14px 16px;color:var(--ink);text-decoration:none;font-weight:600;font-size:14px}
+.dropdown-menu a:hover{background:#eff6ff}
+.danger-link{color:#dc2626!important}
+.email-reveal{display:none;margin-top:4px;color:var(--muted);font-size:12px;word-break:break-word}
+.show-email{display:block}
+.shell{max-width:1500px;margin:0 auto;padding:26px;display:grid;grid-template-columns:370px 1fr;gap:24px;align-items:start}
+.card{background:var(--card);border:1px solid rgba(226,232,240,.9);border-radius:26px;box-shadow:0 22px 48px rgba(15,23,42,.08);backdrop-filter:blur(14px)}
+.left-panel{padding:22px;position:sticky;top:98px}
+.panel-title{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.panel-title h2{font-size:24px;line-height:1.15}
+.panel-note{color:var(--muted);font-size:14px;line-height:1.6;margin-bottom:16px}
+.unit-note{background:linear-gradient(135deg,#eff6ff,#ecfeff);border:1px solid #bfdbfe;color:#1e40af;padding:12px;border-radius:16px;font-size:12px;line-height:1.55;margin-bottom:16px;font-weight:700}
+.input-grid{display:grid;gap:13px}
+.field-group label{display:flex;justify-content:space-between;align-items:center;font-weight:800;font-size:14px;margin-bottom:6px}
+.unit-chip{font-size:11px;background:#f1f5f9;color:#475569;padding:3px 8px;border-radius:999px}
+.field-group input{width:100%;padding:13px 14px;border-radius:14px;border:1px solid #cbd5e1;background:#fff;outline:none;font-weight:600;color:var(--ink)}
+.field-group input:focus{border-color:#60a5fa;box-shadow:0 0 0 4px rgba(96,165,250,.15)}
+.field-group small{display:block;margin-top:5px;color:var(--muted);font-size:11px;line-height:1.4}
+.full-btn,.clear-btn{width:100%;padding:15px;border:none;border-radius:15px;color:white;font-weight:900;font-size:15px;cursor:pointer;transition:.18s ease}
+.full-btn{background:linear-gradient(90deg,#22c55e,#14b8a6);box-shadow:0 14px 28px rgba(34,197,94,.22)}
+.clear-btn{background:linear-gradient(90deg,#f97316,#ef4444);margin-top:12px;box-shadow:0 14px 28px rgba(239,68,68,.18)}
+.full-btn:hover,.clear-btn:hover{transform:translateY(-2px)}
+.right-panel{display:grid;gap:22px}
+.hero{padding:26px;overflow:hidden;position:relative}
+.hero:before{content:"";position:absolute;right:-80px;top:-80px;width:240px;height:240px;background:radial-gradient(circle,rgba(37,99,235,.18),transparent 70%)}
+.hero-head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:20px}
+.hero h2{font-size:30px;letter-spacing:-.4px}
+.badge{padding:8px 14px;border-radius:999px;background:#e2e8f0;color:#475569;font-size:13px;font-weight:900}
+.badge.ready{background:#dbeafe;color:#1d4ed8}
+.badge.done{background:#dcfce7;color:#166534}
+.hero-desc{font-size:15px;line-height:1.7;color:#475569;max-width:850px}
+.workflow{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:22px}
+.step-card{padding:20px;border-radius:20px;background:#fff;border:1px solid var(--line);text-align:center}
+.step-card span{font-size:13px;color:var(--muted);font-weight:800}
+.step-card strong{display:block;font-size:22px;margin:8px 0}
+.step-card small{color:var(--muted);font-size:12px}
+.output-list{margin-top:18px;padding:20px;border-radius:20px;background:#fff;border:1px solid var(--line)}
+.output-list h3{margin-bottom:12px}
+.output-list ul{padding-left:20px;line-height:1.9}
+.report-card{padding:24px}
+.report-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+.report-head h2{font-size:28px}
+.report-subtitle{font-size:12px;color:var(--muted);margin-top:4px;font-weight:700}
+.status-box{padding:22px;border-radius:20px;background:#fff;border:1px solid var(--line);margin-bottom:18px}
+.status-box p{font-size:26px;font-weight:950;margin-top:6px}
+.dashboard-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:18px}
+.gauge-card,.interpretation-card,.inner-card,.graph-box,.result-box{background:#fff;border:1px solid var(--line);border-radius:20px;padding:20px}
+.region-label{text-align:center;font-weight:900;color:{{ result.status_color|default('#64748b') }}}
+.scale-note{text-align:center;font-weight:800;margin-top:10px;font-size:13px;color:#475569}
+.scale-note .low{color:#22c55e}.scale-note .mid{color:#f59e0b}.scale-note .high{color:#ef4444}
+.units-result-note{font-size:12px;color:var(--muted);font-weight:800;margin:18px 0 8px}
+.kpi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:0}
+.result-box{text-align:center}
+.result-box span{display:block;color:var(--muted);font-size:13px;margin-bottom:8px}
+.result-box strong{font-size:24px}
+.result-box small{display:block;margin-top:8px;color:var(--muted);font-size:12px;line-height:1.45}
+.wide-card{margin-top:18px}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:18px}
+.inner-card h3,.interpretation-card h3,.graph-box h3{margin-bottom:12px}
+.inner-card ul{padding-left:18px;line-height:1.85}
+.recommend-note{font-size:12px;color:var(--muted);margin-top:10px;font-weight:700;line-height:1.5}
+.mini-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:10px}
+.mini-grid div{border:1px solid var(--line);border-radius:16px;padding:16px}
+.mini-grid span{display:block;color:var(--muted);font-size:12px;margin-bottom:8px}
+.graph-box{margin-top:18px}
+.graph-box img{display:block;width:100%;max-width:850px;margin:0 auto;border-radius:16px;border:1px solid var(--line);padding:10px;background:white}
+@media(max-width:1100px){.shell{grid-template-columns:1fr}.left-panel{position:static}.dashboard-grid,.workflow,.kpi-grid,.two-col,.mini-grid{grid-template-columns:1fr}.topbar{height:auto;gap:14px;align-items:flex-start;flex-direction:column}}
+</style>
+</head>
+<body>
+<header class="topbar">
+    <div class="brand-wrap">
+        <div class="brand-badge">AI</div>
+        <div>
+            <h1>AI VLSI Power Analysis Dashboard</h1>
+            <p class="subtext">Professional ML-based circuit power estimation with engineering units</p>
+        </div>
+    </div>
+    <div class="profile-menu">
+        <button class="profile-btn" onclick="toggleMenu()">
+            <span class="profile-left">
+            {% if settings_data.profile_image %}
+                <img src="{{ url_for('static', filename=settings_data.profile_image) }}" alt="DP">
+            {% else %}
+                <span class="profile-avatar">{{ settings_data.username[0]|upper }}</span>
+            {% endif %}
+            <span class="profile-name">{{ settings_data.username }}</span>
+            </span>
+            <span class="profile-arrow">▾</span>
+        </button>
+        <div id="profileDropdown" class="dropdown-menu">
+            <div class="dropdown-user">
+                {% if settings_data.profile_image %}
+                    <img src="{{ url_for('static', filename=settings_data.profile_image) }}" alt="DP" class="dropdown-avatar">
+                {% else %}
+                    <div class="dropdown-avatar">{{ settings_data.username[0]|upper }}</div>
+                {% endif %}
+                <div><strong>{{ settings_data.username }}</strong><small id="emailReveal" class="email-reveal">{{ user }}</small></div>
+            </div>
+            <a href="#" onclick="toggleEmail(event)">👁 Show Email</a>
+            <a href="/settings">Settings</a>
+            <a href="/help">Help Center</a>
+            <a href="/download-report">Download Report</a>
+            <a href="/logout" class="danger-link">Logout</a>
+        </div>
+    </div>
+</header>
+
+<main class="shell">
+<section class="left-panel card">
+    <div class="panel-title"><span>⚙</span><h2>Enter Circuit Parameters</h2></div>
+    <p class="panel-note">Enter values with correct VLSI engineering units to generate power analysis.</p>
+    <div class="unit-note">Units: Capacitance = pF, Voltage = V, Frequency = MHz, Temperature = °C, Leakage Current = µA, Output Power = mW.</div>
+    <form method="POST" class="input-grid">
+        <div class="field-group"><label>Alpha <span class="unit-chip">unitless</span></label><input name="alpha" placeholder="0.1 to 1.0" required><small>Switching activity factor</small></div>
+        <div class="field-group"><label>Capacitance <span class="unit-chip">pF</span></label><input name="cap" placeholder="1 to 10 pF" required><small>Internal capacitance</small></div>
+        <div class="field-group"><label>Load Capacitance <span class="unit-chip">pF</span></label><input name="load_cap" placeholder="0.5 to 5 pF" required><small>External load capacitance</small></div>
+        <div class="field-group"><label>Voltage <span class="unit-chip">V</span></label><input name="voltage" placeholder="0.8 to 1.5 V" required><small>Supply voltage</small></div>
+        <div class="field-group"><label>Frequency <span class="unit-chip">MHz</span></label><input name="freq" placeholder="50 to 500 MHz" required><small>Clock frequency</small></div>
+        <div class="field-group"><label>Temperature <span class="unit-chip">°C</span></label><input name="temp" placeholder="20 to 100 °C" required><small>Operating temperature</small></div>
+        <div class="field-group"><label>Leakage Current <span class="unit-chip">µA</span></label><input name="leak" placeholder="0.001 to 0.01 µA" required><small>Static leakage current</small></div>
+        <div class="field-group"><label>Number of Gates <span class="unit-chip">count</span></label><input name="gates" placeholder="1000 to 10000 gates" required><small>Approximate circuit size</small></div>
+        <button type="submit" class="full-btn">Analyze Circuit</button>
+    </form>
+    <form method="POST"><button type="submit" name="clear_analysis" value="1" class="clear-btn">Clear Analysis</button></form>
+</section>
+
+<section class="right-panel">
+{% if not result %}
+    <div class="card hero">
+        <div class="hero-head">
+            <div>
+                <h2>⚡ VLSI Power Estimation Tool</h2>
+                <p class="hero-desc">Enter design parameters and run analysis to generate ML-based power estimation, engineering status, optimization suggestions, and graph visualization.</p>
+            </div>
+            <span class="badge ready">Ready</span>
+        </div>
+        <div class="workflow">
+            <div class="step-card"><span>Step 1</span><strong>Input</strong><small>Enter circuit parameters with units</small></div>
+            <div class="step-card"><span>Step 2</span><strong>Predict</strong><small>ML model estimates power in mW</small></div>
+            <div class="step-card"><span>Step 3</span><strong>Optimize</strong><small>Color status and recommendations</small></div>
+        </div>
+        <div class="output-list"><h3>Dashboard Output</h3><ul><li>Power speedometer with green, yellow and red zones</li><li>Predicted, ideal, dynamic and leakage power values</li><li>Final interpretation and optimization recommendations</li><li>Voltage vs Power graph for sensitivity analysis</li></ul></div>
+    </div>
+{% endif %}
+
+{% if result %}
+    <div class="card report-card">
+        <div class="report-head">
+            <div>
+                <h2>📊 Analysis Report</h2>
+                <p class="report-subtitle">Hybrid ML + Analytical Power Estimation System</p>
+                <p style="font-size:12px; color:#64748b; margin-top:4px; font-weight:700;">
+                    This system combines machine learning prediction with analytical VLSI power equations.
+                </p>
+            </div>
+            <span class="badge done">Generated</span>
+        </div>
+
+        <div class="status-box" style="border-left:8px solid {{ result.status_color }}; background: {{ result.status_color }}15;">
+            <h3>Design Status</h3>
+            <p style="color:{{ result.status_color }};">⚡ {{ result.status }}</p>
+        </div>
+
+        <div class="dashboard-grid">
+            <div class="gauge-card">
+                <h3>Power Odometer / Gauge</h3>
+                <div id="powerGauge" style="width:100%;height:320px;"></div>
+                <p class="region-label">
+                    {% if result.status == "High Power" %}🔴 High Power Region - Optimization Required{% elif result.status == "Moderate Power" %}🟡 Moderate Power Region - Acceptable but can improve{% else %}🟢 Low Power Region - Efficient Design{% endif %}
+                </p>
+                <p class="scale-note">Scale: <span class="low">0–1.5 mW Low</span> | <span class="mid">1.5–3 mW Moderate</span> | <span class="high">3–5 mW High</span></p>
+            </div>
+
+            <div class="interpretation-card">
+                <h3>Final Interpretation</h3>
+                <p>
+                    The circuit operates in the <b>{{ result.status }}</b> region with a total estimated power of <b>{{ result.total_estimated }}</b>.
+                    {% if result.status == "High Power" %}
+                    This indicates high energy consumption and requires optimization by reducing voltage, frequency, or capacitance.
+                    {% elif result.status == "Moderate Power" %}
+                    This indicates moderate efficiency; further optimization can improve power performance.
+                    {% else %}
+                    This indicates an efficient low-power design suitable for energy-sensitive VLSI applications.
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+
+        <p class="units-result-note">All power values are represented in milliwatts (mW).</p>
+
+        <div class="kpi-grid">
+            <div class="result-box">
+                <span>Predicted Power</span><strong>{{ result.predicted_power }}</strong>
+                {% if result.status == "Low Power" %}<small>✔ Efficient low-power design</small>{% elif result.status == "Moderate Power" %}<small>⚖ Balanced power consumption</small>{% else %}<small>⚠ High power consumption</small>{% endif %}
+            </div>
+            <div class="result-box"><span>Ideal Power</span><strong>{{ result.ideal_power }}</strong><small>Formula-based theoretical value</small></div>
+            <div class="result-box"><span>Error</span><strong>{{ result.error }}</strong><small>Difference between ML and formula</small></div>
+            <div class="result-box"><span>Dynamic Power</span><strong>{{ result.dynamic_power }}</strong><small>Switching power component</small></div>
+            <div class="result-box"><span>Leakage Power</span><strong>{{ result.leakage_power }}</strong><small>Static leakage component</small></div>
+            <div class="result-box"><span>Total Estimated</span><strong>{{ result.total_estimated }}</strong><small>Dynamic power + leakage power</small></div>
+        </div>
+
+        <div class="two-col">
+            <div class="inner-card">
+                <h3>📌 Recommendations</h3>
+                <ul>{% for rec in recommendations %}<li>{{ rec }}</li>{% endfor %}</ul>
+                <p class="recommend-note">These recommendations are generated using sensitivity analysis of circuit parameters and power behavior trends.</p>
+            </div>
+            <div class="inner-card"><h3>📈 Engineering Insights</h3><ul>{% for item in insights %}<li>{{ item }}</li>{% endfor %}</ul></div>
+        </div>
+
+        <div class="inner-card wide-card"><h3>Sensitivity Analysis</h3><div class="mini-grid"><div><span>Voltage +0.1 V New Power</span><strong>{{ result.new_power }}</strong></div><div><span>Power Change</span><strong>{{ result.power_change }}</strong></div></div></div>
+
+        {% if graph_ready %}<div class="graph-box"><h3>Voltage (V) vs Power (mW) Analysis Graph</h3><img src="{{ url_for('static', filename='voltage_graph.png') }}" alt="Voltage Graph"></div>{% endif %}
+    </div>
+{% endif %}
+</section>
+</main>
+
+{% if result %}
+<script>
+var powerValue={{ result.total_estimated_value }};
+var gaugeColor="{{ result.status_color }}";
+var data=[{type:"indicator",mode:"gauge+number",value:powerValue,number:{suffix:" mW",font:{size:42,color:"#0f172a"}},title:{text:"Power Odometer (Total Estimated Power)",font:{size:18}},gauge:{axis:{range:[0,5],tickwidth:1,tickcolor:"#64748b"},bar:{color:gaugeColor},bgcolor:"white",borderwidth:2,bordercolor:"#e2e8f0",steps:[{range:[0,1.5],color:"#dcfce7"},{range:[1.5,3],color:"#fef3c7"},{range:[3,5],color:"#fee2e2"}],threshold:{line:{color:gaugeColor,width:4},thickness:.75,value:powerValue}}}];
+var layout={margin:{t:30,r:30,l:30,b:20},paper_bgcolor:"rgba(0,0,0,0)",font:{color:"#0f172a",family:"Arial"}};
+Plotly.newPlot("powerGauge",data,layout,{responsive:true,displayModeBar:false});
+</script>
+{% endif %}
+<script>
+function toggleMenu(){document.getElementById("profileDropdown").classList.toggle("show")}
+function toggleEmail(event){event.preventDefault();document.getElementById("emailReveal").classList.toggle("show-email")}
+window.onclick=function(event){if(!event.target.closest('.profile-menu')){const menu=document.getElementById("profileDropdown");if(menu)menu.classList.remove("show")}}
+</script>
+</body>
+</html>

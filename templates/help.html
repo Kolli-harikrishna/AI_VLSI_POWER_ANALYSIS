@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Help Center | AI VLSI Tool</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #eef4ff 0%, #f8fbff 40%, #ecfeff 100%);
+            color: #1e293b;
+        }
+
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 22px 34px;
+            background: rgba(255, 255, 255, 0.9);
+            box-shadow: 0 8px 20px rgba(30, 41, 59, 0.08);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .brand-badge {
+            width: 54px;
+            height: 54px;
+            border-radius: 16px;
+            background: linear-gradient(135deg, #2563eb, #06b6d4);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            font-weight: 800;
+        }
+
+        .topbar h1 {
+            font-size: 30px;
+            margin-bottom: 4px;
+        }
+
+        .topbar p {
+            color: #64748b;
+            font-size: 14px;
+        }
+
+        .back-btn {
+            text-decoration: none;
+            padding: 12px 18px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #2563eb, #06b6d4);
+            color: white;
+            font-weight: 700;
+        }
+
+        .wrapper {
+            max-width: 1200px;
+            margin: 28px auto;
+            padding: 0 20px;
+            display: grid;
+            grid-template-columns: 1.15fr 0.85fr;
+            gap: 24px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 24px;
+            border: 1px solid rgba(148, 163, 184, 0.14);
+            box-shadow: 0 18px 40px rgba(30, 41, 59, 0.08);
+            padding: 24px;
+        }
+
+        .chat-title,
+        .faq-title {
+            font-size: 26px;
+            margin-bottom: 14px;
+        }
+
+        .chat-sub {
+            color: #64748b;
+            margin-bottom: 18px;
+            line-height: 1.6;
+        }
+
+        .chat-window {
+            min-height: 300px;
+            background: #f8fbff;
+            border: 1px solid #dbeafe;
+            border-radius: 18px;
+            padding: 18px;
+            margin-bottom: 18px;
+        }
+
+        .bubble {
+            max-width: 85%;
+            padding: 14px 16px;
+            border-radius: 16px;
+            margin-bottom: 12px;
+            line-height: 1.6;
+            font-size: 15px;
+        }
+
+        .user-bubble {
+            margin-left: auto;
+            background: linear-gradient(135deg, #2563eb, #06b6d4);
+            color: white;
+            border-bottom-right-radius: 6px;
+        }
+
+        .bot-bubble {
+            background: white;
+            color: #1e293b;
+            border: 1px solid #e2e8f0;
+            border-bottom-left-radius: 6px;
+        }
+
+        .empty-chat {
+            color: #64748b;
+            line-height: 1.8;
+        }
+
+        .chat-form {
+            display: flex;
+            gap: 12px;
+        }
+
+        .chat-form input {
+            flex: 1;
+            padding: 14px 16px;
+            border-radius: 14px;
+            border: 1px solid #cbd5e1;
+            outline: none;
+            font-size: 15px;
+        }
+
+        .chat-form input:focus {
+            border-color: #60a5fa;
+            box-shadow: 0 0 0 4px rgba(96, 165, 250, 0.14);
+        }
+
+        .chat-form button {
+            padding: 14px 20px;
+            border: none;
+            border-radius: 14px;
+            background: linear-gradient(135deg, #22c55e, #14b8a6);
+            color: white;
+            font-weight: 800;
+            cursor: pointer;
+        }
+
+        .faq-list {
+            display: grid;
+            gap: 14px;
+        }
+
+        .faq-item {
+            background: #f8fbff;
+            border: 1px solid #dbeafe;
+            border-radius: 16px;
+            padding: 16px;
+        }
+
+        .faq-item h4 {
+            margin-bottom: 8px;
+            font-size: 17px;
+            color: #0f172a;
+        }
+
+        .faq-item p {
+            color: #475569;
+            line-height: 1.6;
+            font-size: 14px;
+        }
+
+        @media (max-width: 950px) {
+            .wrapper {
+                grid-template-columns: 1fr;
+            }
+
+            .topbar {
+                flex-direction: column;
+                gap: 14px;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="topbar">
+        <div class="brand">
+            <div class="brand-badge">AI</div>
+            <div>
+                <h1>Help Center</h1>
+                <p>Ask chip power - related questions and get quick answers</p>
+            </div>
+        </div>
+        <a href="/dashboard" class="back-btn">Back to Dashboard</a>
+    </header>
+
+    <main class="wrapper">
+        <section class="card">
+            <h2 class="chat-title">AI Help Assistant</h2>
+            <p class="chat-sub">
+                Ask about accuracy, voltage, frequency, recommendations, feature importance,
+                formula, dataset, graph, or model selection.
+            </p>
+
+            <div class="chat-window">
+                {% if chat_question and chat_answer %}
+                    <div class="bubble user-bubble">{{ chat_question }}</div>
+                    <div class="bubble bot-bubble">{{ chat_answer }}</div>
+                {% else %}
+                    <div class="empty-chat">
+                        Try asking:
+                        <br><br>
+                        • Why is accuracy high?
+                        <br>
+                        • How can I reduce power?
+                        <br>
+                        • What is feature importance?
+                        <br>
+                        • Why does voltage increase power?
+                        <br>
+                        • Which model is used?
+                    </div>
+                {% endif %}
+            </div>
+
+            <form method="POST" action="/ask" class="chat-form">
+                <input type="text" name="question" placeholder="Type your question here..." required>
+                <button type="submit">Ask</button>
+            </form>
+        </section>
+
+        <section class="card">
+            <h2 class="faq-title">Frequently Asked Questions</h2>
+
+            <div class="faq-list">
+                <div class="faq-item">
+                    <h4>Why is accuracy high?</h4>
+                    <p>Accuracy is high because the dataset is formula-based and the selected model learned the relationship effectively.</p>
+                </div>
+
+                <div class="faq-item">
+                    <h4>What is feature importance?</h4>
+                    <p>Feature importance tells which input parameter affects prediction the most. Tree-based models provide this directly.</p>
+                </div>
+
+                <div class="faq-item">
+                    <h4>How can I reduce power?</h4>
+                    <p>Reduce voltage, lower frequency, and optimize capacitance values. These strongly affect total power.</p>
+                </div>
+
+                <div class="faq-item">
+                    <h4>What does sensitivity analysis show?</h4>
+                    <p>It shows how predicted power changes when voltage is increased by a small amount.</p>
+                </div>
+
+                <div class="faq-item">
+                    <h4>Why does voltage matter so much?</h4>
+                    <p>Dynamic power depends on voltage square, so even a small increase in voltage can cause noticeable power increase.</p>
+                </div>
+
+                <div class="faq-item">
+                    <h4>Which model is used in the project?</h4>
+                    <p>The system compares models and uses the best-performing model for prediction.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+</body>
+</html>
